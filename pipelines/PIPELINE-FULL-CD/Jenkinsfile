@@ -14,6 +14,7 @@ pipeline {
                 sh script: """
                     set -x
                     git branch -a
+                    git remote set-url origin git@github.com:jaduardomf/todo-list-aws.git
                     git checkout -b develop origin/develop
                     git checkout -b master origin/master
                     git merge develop
