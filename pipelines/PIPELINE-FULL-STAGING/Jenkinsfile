@@ -3,9 +3,30 @@ pipeline {
     stages {
         stage('SetUp'){
             steps{
-                catchError(message:'Error in dependencies setup.') {
-                echo 'Setup production environment'
-                sh "bash pipelines/PIPELINE-FULL-PRODUCTION/setup.sh"
+                echo 'Setup Virtualenv for testing'
+                sh "bash pipelines/PIPELINE-FULL-STAGING/setup.sh"
+            }
+        }
+        stage('Test'){
+            steps{
+                catchError(message:'El análisis estático del código ha resultado por debajo del nivel mínimo aceptable, pipeline fallido.') {
+                    echo 'Static program analysis:'
+                    sh "bash pipelines/PIPELINE-FULL-STAGING/static_test.sh"
+                }
+                catchError(message:'Las pruebas unitarias cubren un porcentaje menor al 80%, pipeline fallido.') {
+                    echo 'Unit testing:'
+                    sh "bash pipelines/PIPELINE-FULL-STAGING/unit_test.sh"
+                    }
+            }
+            post {
+                always {
+                    script {
+                        def failed = publishCoverage (failUnhealthy: true, 
+                            globalThresholds: [[thresholdTarget: 'Line', unhealthyThreshold: 80.0]],
+                            adapters: [coberturaAdapter(
+                                mergeToOneReport: true, 
+                                path: '**/coverage.xml')])
+                    }
                 }
             }
         }
