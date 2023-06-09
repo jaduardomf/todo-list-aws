@@ -17,6 +17,7 @@ pipeline {
                 catchError(message:'Las pruebas unitarias cubren un porcentaje menor al 80%, pipeline fallido.') {
                     echo 'Unit testing:'
                     sh "bash pipelines/PIPELINE-FULL-STAGING/unit_test.sh"
+                    }
             }
             post {
                 always {
