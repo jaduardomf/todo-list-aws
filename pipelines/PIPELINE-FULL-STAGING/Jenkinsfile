@@ -10,16 +10,19 @@ pipeline {
         }
         stage('Test'){
             steps{
-                echo 'Static program analysis:'
-                sh "bash pipelines/PIPELINE-FULL-STAGING/static_test.sh"
-                echo 'Unit testing:'
-                sh "bash pipelines/PIPELINE-FULL-STAGING/unit_test.sh"
+                catchError(message:'El análisis estático del código ha resultado por debajo del nivel mínimo aceptable, pipeline fallido.') {
+                    echo 'Static program analysis:'
+                    sh "bash pipelines/PIPELINE-FULL-STAGING/static_test.sh"
+                }
+                catchError(message:'Las pruebas unitarias cubren un porcentaje menor al 80%, pipeline fallido.') {
+                    echo 'Unit testing:'
+                    sh "bash pipelines/PIPELINE-FULL-STAGING/unit_test.sh"
             }
             post {
                 always {
                     script {
                         def failed = publishCoverage (failUnhealthy: true, 
-                            globalThresholds: [[thresholdTarget: 'Line', unhealthyThreshold: 70.0]],
+                            globalThresholds: [[thresholdTarget: 'Line', unhealthyThreshold: 80.0]],
                             adapters: [coberturaAdapter(
                                 mergeToOneReport: true, 
                                 path: '**/coverage.xml')])
