@@ -115,6 +115,22 @@ def delete_item(key, dynamodb=None):
     else:
         return
 
+def get_item_translated(key, lang, dynamodb=None):
+    table = get_table(dynamodb)
+    try:
+        result = table.get_item(
+            Key={
+                'id': key
+            }
+        )
+        result['text'] = translate.translate_text(Text=result['text'], SourceLanguageCode="auto", TargetLanguageCode="lang")
+
+    except ClientError as e:
+        print(e.response['Error']['Message'])
+    else:
+        print('Result getItem:'+str(translated_text))
+        if 'Item' in result:
+            return result['Item']
 
 def create_todo_table(dynamodb):
     # For unit testing
