@@ -116,7 +116,7 @@ def delete_item(key, dynamodb=None):
     else:
         return
 
-def get_item_translated(key, lang, dynamodb=None):
+def get_item_translated(key, language, dynamodb=None):
     table = get_table(dynamodb)
     try:
         result = table.get_item(
@@ -124,7 +124,7 @@ def get_item_translated(key, lang, dynamodb=None):
                 'id': key
             }
         )
-        result['text'] = translate.translate_text(Text=result['text'], SourceLanguageCode="auto", TargetLanguageCode="lang")
+        result['text'] = translate.translate_text(Text=result['text'], SourceLanguageCode="auto", TargetLanguageCode="language")
 
     except ClientError as e:
         print(e.response['Error']['Message'])

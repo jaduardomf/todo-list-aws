@@ -28,6 +28,7 @@ class TestDatabaseFunctions(unittest.TestCase):
         self.is_local = 'true'
         self.uuid = "123e4567-e89b-12d3-a456-426614174000"
         self.text = "Aprender DevOps y Cloud en la UNIR"
+        self.text_translated = "Learn DevOps and Cloud in UNIR"
         os.environ['AWS_DEFAULT_REGION'] = 'us-east-1'
 
         from src.todoList import create_todo_table
@@ -94,6 +95,29 @@ class TestDatabaseFunctions(unittest.TestCase):
         print ('Response Get:' + str(responseGet))
         self.assertEqual(
             self.text,
+            responseGet['text'])
+        print ('End: test_get_todo')
+        
+    def test_get_translated_todo(self):
+        print ('---------------------')
+        print ('Start: test_get_todo')
+        from src.todoList import get_item_translated
+        from src.todoList import put_item
+
+        # Testing file functions
+        # Table mock
+        responsePut = put_item(self.text, self.dynamodb)
+        print ('Response put_item:' + str(responsePut))
+        idItem = json.loads(responsePut['body'])['id']
+        print ('Id item:' + idItem)
+        self.assertEqual(200, responsePut['statusCode'])
+        responseGet = get_item_translated(
+                idItem,
+                "en",
+                self.dynamodb)
+        print ('Response Get:' + str(responseGet))
+        self.assertEqual(
+            self.text_translated,
             responseGet['text'])
         print ('End: test_get_todo')
     
